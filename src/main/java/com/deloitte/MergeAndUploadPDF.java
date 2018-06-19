@@ -31,9 +31,9 @@ public class MergeAndUploadPDF {
     private static final ExecutorService THREADPOOL = Executors.newCachedThreadPool();
 
     // queries and displays the 5 newest contacts
-    public static void mergeanduploadPDF(String file1Ids, String accessToken, String instanceURL, boolean useSoap) {
+    public static void mergeanduploadPDF(String file1Ids, String parentId, String accessToken, String instanceURL, boolean useSoap) {
 
-        System.out.println("Querying for the mail request...");
+        LOGGER.info("Querying for the mail request...");
 
         ConnectorConfig config = new ConnectorConfig();
         config.setSessionId(accessToken);
@@ -50,24 +50,11 @@ public class MergeAndUploadPDF {
             THREADPOOL.execute(new Runnable() {
                 @Override
                 public void run() {
-                    String[] split = file1Ids.split(",");
-                    String parentId = split[split.length-1];
-                    StringBuilder buff = new StringBuilder();
-                    String sep = "";
-                    for (String str : split) {
-                        if(str != parentId) {
-                            buff.append(sep);
-                            buff.append("'"+str+"'");
-                            sep = ",";
-                        }
-                    }
-                    String queryIds = buff.toString();
-
                     try {
                         connection = Connector.newConnection(config);
                         QueryResult queryResults = connection.query(
                                 "Select Id,VersionData from ContentVersion where Id IN (Select LatestPublishedVersionId from ContentDocument where Id IN ("
-                                        + queryIds + "))");
+                                        + file1Ids + "))");
 
                         boolean done = false;
 
@@ -82,8 +69,8 @@ public class MergeAndUploadPDF {
                                     inputFiles.add(tempFile);
                                 }
                                 if (queryResults.isDone()) {
-                                   done = true;
-                                }else {
+                                    done = true;
+                                } else {
                                     queryResults = connection.queryMore(queryResults.getQueryLocator());
                                 }
 
@@ -124,11 +111,11 @@ public class MergeAndUploadPDF {
                         // check the returned results for any errors
                         for (int i = 0; i < saveResults.length; i++) {
                             if (saveResults[i].isSuccess()) {
-                                System.out.println(i + ". Successfully created record - Id: " + saveResults[i].getId());
+                                LOGGER.info(i + ". Successfully created record - Id: " + saveResults[i].getId());
                             } else {
                                 Error[] errors = saveResults[i].getErrors();
                                 for (int j = 0; j < errors.length; j++) {
-                                    System.out.println("ERROR creating record: " + errors[j].getMessage());
+                                    LOGGER.error("ERROR creating record: " + errors[j].getMessage());
                                 }
                             }
                         }
@@ -162,7 +149,7 @@ public class MergeAndUploadPDF {
             if (len < buf.length) {
                 return Arrays.copyOf(buf, len);
             }
-            try(ByteArrayOutputStream os = new ByteArrayOutputStream(16384)){
+            try (ByteArrayOutputStream os = new ByteArrayOutputStream(16384)) {
                 while (len != -1) {
                     os.write(buf, 0, len);
                     len = is.read(buf);
@@ -177,7 +164,7 @@ public class MergeAndUploadPDF {
 
         try {
 
-            System.out.println("Querying for the mail request...");
+            LOGGER.info("Querying for the mail request...");
 
             ConnectorConfig config = new ConnectorConfig();
             config.setSessionId(accessToken);
@@ -192,12 +179,9 @@ public class MergeAndUploadPDF {
             QueryResult queryResults = connection.query(
                     "Select Id,VersionData from ContentVersion where Id IN(Select LatestPublishedVersionId from ContentDocument where Id = '"
                             + documentId + "')");
-            System.out.println("in here.." + queryResults.getSize());
             File tempFile = File.createTempFile("test_", ".pdf", null);
             for (int i = 0; i < queryResults.getSize(); i++) {
                 ContentVersion contentData = (ContentVersion) queryResults.getRecords()[i];
-                System.out.println(i + "..file size.." + contentData.getVersionData().length + "    "
-                        + contentData.getVersionData());
                 try (FileOutputStream fos = new FileOutputStream(tempFile)) {
                     fos.write(contentData.getVersionData());
                 }
@@ -215,7 +199,7 @@ public class MergeAndUploadPDF {
             File splitFile = new File(FileName);
             splitFile.createNewFile();
 
-            System.out.println("Creating ContentVersion record...");
+            LOGGER.info("Creating ContentVersion record...");
             ContentVersion[] record = new ContentVersion[1];
             ContentVersion splitContentData = new ContentVersion();
 
@@ -235,11 +219,11 @@ public class MergeAndUploadPDF {
             // check the returned results for any errors
             for (int i = 0; i < saveResults.length; i++) {
                 if (saveResults[i].isSuccess()) {
-                    System.out.println(i + ". Successfully created record - Id: " + saveResults[i].getId());
+                    LOGGER.info(i + ". Successfully created record - Id: " + saveResults[i].getId());
                 } else {
                     Error[] errors = saveResults[i].getErrors();
                     for (int j = 0; j < errors.length; j++) {
-                        System.out.println("ERROR creating record: " + errors[j].getMessage());
+                        LOGGER.info("ERROR creating record: " + errors[j].getMessage());
                     }
                 }
             }

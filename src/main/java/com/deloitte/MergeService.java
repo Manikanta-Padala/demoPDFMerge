@@ -19,6 +19,7 @@ public class MergeService {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(MergeService.class);
     @RequestMapping(value = "/MergeNSplitService/merge", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
     public static String mergeUsers(@RequestParam("fileIds") String fileIds,
+                                    @RequestParam("parentId") String parentId,
                                     @RequestParam("accessToken") String accessToken,
                                     @RequestParam("instanceURL") String instanceURL,
                                     @RequestParam("useSoap")boolean useSoap) {
@@ -27,7 +28,7 @@ public class MergeService {
         LOGGER.info("accessToken -> "+accessToken);
         LOGGER.info("instanceURL -> "+instanceURL);
         LOGGER.info("useSoap -> "+useSoap);
-        MergeAndUploadPDF.mergeanduploadPDF(fileIds,accessToken,instanceURL,useSoap );
+        MergeAndUploadPDF.mergeanduploadPDF(fileIds,parentId,accessToken,instanceURL,useSoap );
         return gson.toJson("Merge PDF SUCCESS");
 
     }
