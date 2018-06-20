@@ -26,6 +26,7 @@ public class MergeService {
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
         LOGGER.info("fileIds -> "+fileIds);
         LOGGER.info("accessToken -> "+accessToken);
+        LOGGER.info("parentId -> "+parentId);
         LOGGER.info("instanceURL -> "+instanceURL);
         LOGGER.info("useSoap -> "+useSoap);
         MergeAndUploadPDF.mergeanduploadPDF(fileIds,parentId,accessToken,instanceURL,useSoap );

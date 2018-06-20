@@ -50,11 +50,22 @@ public class MergeAndUploadPDF {
             THREADPOOL.execute(new Runnable() {
                 @Override
                 public void run() {
+                    String[] split = file1Ids.split(",");
+                    StringBuilder buff = new StringBuilder();
+                    String sep = "";
+                    for (String str : split) {
+                        if(str != parentId) {
+                            buff.append(sep);
+                            buff.append("'"+str+"'");
+                            sep = ",";
+                        }
+                    }
+                    String queryIds = buff.toString();
                     try {
                         connection = Connector.newConnection(config);
                         QueryResult queryResults = connection.query(
                                 "Select Id,VersionData from ContentVersion where Id IN (Select LatestPublishedVersionId from ContentDocument where Id IN ("
-                                        + file1Ids + "))");
+                                        + queryIds + "))");
 
                         boolean done = false;
 
