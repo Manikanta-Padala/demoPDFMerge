@@ -61,6 +61,8 @@ public class MergeAndUploadPDF {
                         }
                     }
                     String queryIds = buff.toString();
+                    LOGGER.info("queryIds - > "+queryIds);
+                    LOGGER.info("parentId - > "+parentId);
                     try {
                         connection = Connector.newConnection(config);
                         QueryResult queryResults = connection.query(
