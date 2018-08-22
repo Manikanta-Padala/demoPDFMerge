@@ -49,12 +49,13 @@ public class MergeService {
     @RequestMapping(value = "/MergeNSplitService/splitandmerge", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON)
     public static String splitAndMergePDFs(@RequestParam("file1Id") String file1Id,
                                    @RequestParam("parentId") String parentId,
+                                   @RequestParam("pageNumber") String pageNumber,
                                    @RequestParam("accessToken") String accessToken,
                                    @RequestParam("instanceURL") String instanceURL,
                                    @RequestParam("useSoap")boolean useSoap) {
         Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-        MergeAndUploadPDF.splitAndMergePDF(file1Id, parentId,accessToken,instanceURL,useSoap );
-        return gson.toJson("SPLIT PDF SUCCESS");
+        MergeAndUploadPDF.splitAndMergePDF(file1Id, parentId, pageNumber, accessToken,instanceURL,useSoap );
+        return gson.toJson("SPLIT AND MERGE PDF SUCCESS");
 
     }
 }
