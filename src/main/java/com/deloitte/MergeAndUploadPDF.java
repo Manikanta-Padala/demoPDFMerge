@@ -247,7 +247,7 @@ public class MergeAndUploadPDF {
 
     }
     
-    public static void mergeanduploadPDF(String file1Ids, String parentId, String pageNumber, String accessToken, String instanceURL, boolean useSoap) {
+    public static void splitAndMergePDF(String file1Ids, String parentId, String pageNumber, String accessToken, String instanceURL, boolean useSoap) {
 
         LOGGER.info("Querying for the mail request...");
 
