@@ -352,7 +352,7 @@ public class MergeAndUploadPDF {
                     }	
 				}
 				
-		private void createFiles(File inputFile, int number_of_pages, int page_number PdfSmartCopy copy) throws IOException, BadPdfFormatException {
+		private void createFiles(File inputFile, int number_of_pages, int page_number, PdfSmartCopy copy) throws IOException, BadPdfFormatException {
                     PdfReader ReadInputPDF = new PdfReader(inputFile.toString());
                     copy.addPage(copy.getImportedPage(ReadInputPDF, page_number));
                     copy.freeReader(ReadInputPDF);
