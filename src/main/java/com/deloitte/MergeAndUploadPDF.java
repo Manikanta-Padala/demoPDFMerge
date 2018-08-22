@@ -8,7 +8,6 @@ import com.itextpdf.text.pdf.PdfSmartCopy;
 import com.sforce.soap.enterprise.*;
 import com.sforce.soap.enterprise.Error;
 import com.sforce.soap.enterprise.sobject.ContentVersion;
-import com.sforce.soap.enterprise.sobject.Batch_Print_Item__c;
 import com.sforce.soap.enterprise.sobject.SObject;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
@@ -126,23 +125,6 @@ public class MergeAndUploadPDF {
                         for (int i = 0; i < saveResults.length; i++) {
                             if (saveResults[i].isSuccess()) {
                                 LOGGER.info(i + ". Successfully created record - Id: " + saveResults[i].getId());
-                                LOGGER.info("Updating Batch_Print_Item__c record...");
-                                Batch_Print_Item__c[] batchPrintItemRecords = new Batch_Print_Item__c[1];
-                                Batch_Print_Item__c mailItem = new Batch_Print_Item__c();
-                                mailItem.Id = parentId;
-                                mailItem.File__c = instanceURL + "/" + saveResults[i].getId();
-                                batchPrintItemRecords[0] = mailItem;
-                                SaveResult[] saveResults1 = connection.update(batchPrintItemRecords);
-                                for (int i = 0; i < saveResults1.length; i++) {
-                                    if (saveResults1[i].isSuccess()) {
-                                        LOGGER.info(i + ". Successfully updated record - Id: " + saveResults1[i].getId());
-                                    } else {
-                                        Error[] errors = saveResults1[i].getErrors();
-                                        for (int j = 0; j < errors.length; j++) {
-                                            LOGGER.error("ERROR creating record: " + errors[j].getMessage());
-                                        }
-                                    }
-                                }
                             } else {
                                 Error[] errors = saveResults[i].getErrors();
                                 for (int j = 0; j < errors.length; j++) {
