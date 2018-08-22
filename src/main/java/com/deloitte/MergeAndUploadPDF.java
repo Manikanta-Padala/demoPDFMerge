@@ -328,7 +328,7 @@ public class MergeAndUploadPDF {
                         ContentVersion mergedContentData = new ContentVersion();
                         mergedContentData.setVersionData(readFromFile(mergedFile.getName()));
                         mergedContentData.setFirstPublishLocationId(parentId);
-                        mergedContentData.setTitle("Merged Document");
+                        mergedContentData.setTitle("Splitted & Merged Document");
                         mergedContentData.setPathOnClient("/CombinedPDFDocument.pdf");
 
                         record[0] = mergedContentData;
