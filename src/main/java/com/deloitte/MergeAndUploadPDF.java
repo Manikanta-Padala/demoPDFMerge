@@ -247,26 +247,26 @@ public class MergeAndUploadPDF {
 
     }
     
-    public static void splitAndMergePDF(String file1Ids, String parentId, String page_number, String accessToken, String instanceURL, boolean useSoap) {
+    public static void mergeanduploadPDF(String file1Ids, String parentId, String pageNumber, String accessToken, String instanceURL, boolean useSoap) {
+
+        LOGGER.info("Querying for the mail request...");
+
+        ConnectorConfig config = new ConnectorConfig();
+        config.setSessionId(accessToken);
+        if (useSoap) {
+            config.setServiceEndpoint(instanceURL + "/services/Soap/c/40.0");
+        } else {
+            config.setServiceEndpoint(instanceURL + "/services/Soap/T/40.0");
+        }
+
+        List<File> inputFiles = new ArrayList<File>();
 
         try {
 
-            LOGGER.info("Querying for the mail request...");
-
-            ConnectorConfig config = new ConnectorConfig();
-            config.setSessionId(accessToken);
-            if (useSoap) {
-                config.setServiceEndpoint(instanceURL + "/services/Soap/c/40.0");
-            } else {
-                config.setServiceEndpoint(instanceURL + "/services/Soap/T/40.0");
-            }
-            connection = Connector.newConnection(config);
-			
-			List<File> inputFiles = new ArrayList<File>();
-			THREADPOOL.execute(new Runnable() {
+            THREADPOOL.execute(new Runnable() {
                 @Override
                 public void run() {
-					String[] split = file1Ids.split(",");
+                    String[] split = file1Ids.split(",");
                     StringBuilder buff = new StringBuilder();
                     String sep = "";
                     for (String str : split) {
@@ -279,7 +279,7 @@ public class MergeAndUploadPDF {
                     String queryIds = buff.toString();
                     LOGGER.info("queryIds - > "+queryIds);
                     LOGGER.info("parentId - > "+parentId);
-					try {
+                    try {
                         connection = Connector.newConnection(config);
                         QueryResult queryResults = connection.query(
                                 "Select Id,VersionData from ContentVersion where Id IN (Select LatestPublishedVersionId from ContentDocument where Id IN ("
@@ -295,7 +295,7 @@ public class MergeAndUploadPDF {
                                     try (OutputStream os = Files.newOutputStream(Paths.get(tempFile.toURI()))) {
                                         os.write(contentData.getVersionData());
                                     }
-                                    inputFiles.add(splitFile);
+                                    inputFiles.add(tempFile);
                                 }
                                 if (queryResults.isDone()) {
                                     done = true;
@@ -305,13 +305,14 @@ public class MergeAndUploadPDF {
 
                             }
                         }
-			Document PDFCombineUsingJava = new Document();
+
+                        Document PDFCombineUsingJava = new Document();
                         PdfSmartCopy copy = new PdfSmartCopy(PDFCombineUsingJava, new FileOutputStream("CombinedPDFDocument.pdf"));
                         PDFCombineUsingJava.open();
                         int number_of_pages = 0;
                         inputFiles.parallelStream().forEachOrdered(inputFile -> {
                             try {
-                                createFiles(inputFile, number_of_pages, Integer.parseInt(page_number), copy);
+                                createFiles(inputFile, number_of_pages, Integer.parseInt(pageNumber), copy);
                             } catch (IOException | BadPdfFormatException e) {
                                 e.printStackTrace();
                             }
@@ -346,24 +347,25 @@ public class MergeAndUploadPDF {
                                     LOGGER.error("ERROR creating record: " + errors[j].getMessage());
                                 }
                             }
-                        }						
-					} catch (ConnectionException | IOException | DocumentException e) {
+                        }
+                    } catch (ConnectionException | IOException | DocumentException e) {
                         e.printStackTrace();
-                    }	
-				}
-				
-		private void createFiles(File inputFile, int number_of_pages, int page_number, PdfSmartCopy copy) throws IOException, BadPdfFormatException {
+                    }
+                }
+
+                private void createFiles(File inputFile, int number_of_pages, int pageNumber, PdfSmartCopy copy) throws IOException, BadPdfFormatException {
                     PdfReader ReadInputPDF = new PdfReader(inputFile.toString());
-                    copy.addPage(copy.getImportedPage(ReadInputPDF, page_number));
+                    copy.addPage(copy.getImportedPage(ReadInputPDF, pageNumber));
                     copy.freeReader(ReadInputPDF);
                     ReadInputPDF.close();
                 }
-			});
-		} catch (Exception e) {
+            });
+
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-            
     }
 
 }
