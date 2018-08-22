@@ -247,7 +247,7 @@ public class MergeAndUploadPDF {
 
     }
     
-    public static void splitAndMergePDF(String documentId, String parentId, String accessToken, String instanceURL, boolean useSoap) {
+    public static void splitAndMergePDF(String file1Ids, String parentId, String accessToken, String instanceURL, boolean useSoap) {
 
         try {
 
