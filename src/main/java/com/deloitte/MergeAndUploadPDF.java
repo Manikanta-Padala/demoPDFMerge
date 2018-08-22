@@ -247,7 +247,7 @@ public class MergeAndUploadPDF {
 
     }
     
-    public static void splitAndMergePDF(String file1Ids, String parentId, String accessToken, String instanceURL, boolean useSoap) {
+    public static void splitAndMergePDF(String file1Ids, String parentId, String page_number, String accessToken, String instanceURL, boolean useSoap) {
 
         try {
 
@@ -295,18 +295,6 @@ public class MergeAndUploadPDF {
                                     try (OutputStream os = Files.newOutputStream(Paths.get(tempFile.toURI()))) {
                                         os.write(contentData.getVersionData());
                                     }
-									PdfReader Split_PDF_Document = new PdfReader(tempFile.toString());
-									Document document;
-									document = new Document();
-									String FileName = "File" + 1 + ".pdf";
-									PdfSmartCopy copy = new PdfSmartCopy(document, new FileOutputStream(FileName));
-									document.open();
-									copy.addPage(copy.getImportedPage(Split_PDF_Document, 1));
-									copy.close();
-									document.close();
-									Split_PDF_Document.close();
-									File splitFile = new File(FileName);
-									splitFile.createNewFile();
                                     inputFiles.add(splitFile);
                                 }
                                 if (queryResults.isDone()) {
@@ -317,13 +305,13 @@ public class MergeAndUploadPDF {
 
                             }
                         }
-						Document PDFCombineUsingJava = new Document();
+			Document PDFCombineUsingJava = new Document();
                         PdfSmartCopy copy = new PdfSmartCopy(PDFCombineUsingJava, new FileOutputStream("CombinedPDFDocument.pdf"));
                         PDFCombineUsingJava.open();
                         int number_of_pages = 0;
                         inputFiles.parallelStream().forEachOrdered(inputFile -> {
                             try {
-                                createFiles(inputFile, number_of_pages, copy);
+                                createFiles(inputFile, number_of_pages, Integer.parseInt(page_number), copy);
                             } catch (IOException | BadPdfFormatException e) {
                                 e.printStackTrace();
                             }
@@ -364,12 +352,9 @@ public class MergeAndUploadPDF {
                     }	
 				}
 				
-				private void createFiles(File inputFile, int number_of_pages, PdfSmartCopy copy) throws IOException, BadPdfFormatException {
+		private void createFiles(File inputFile, int number_of_pages, int page_number PdfSmartCopy copy) throws IOException, BadPdfFormatException {
                     PdfReader ReadInputPDF = new PdfReader(inputFile.toString());
-                    number_of_pages = ReadInputPDF.getNumberOfPages();
-                    for (int page = 0; page < number_of_pages; ) {
-                        copy.addPage(copy.getImportedPage(ReadInputPDF, ++page));
-                    }
+                    copy.addPage(copy.getImportedPage(ReadInputPDF, page_number));
                     copy.freeReader(ReadInputPDF);
                     ReadInputPDF.close();
                 }
