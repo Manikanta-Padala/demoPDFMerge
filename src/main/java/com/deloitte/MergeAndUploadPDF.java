@@ -8,6 +8,7 @@ import com.itextpdf.text.pdf.PdfSmartCopy;
 import com.sforce.soap.enterprise.*;
 import com.sforce.soap.enterprise.Error;
 import com.sforce.soap.enterprise.sobject.ContentVersion;
+import com.sforce.soap.enterprise.sobject.Mail_Item__c;
 import com.sforce.soap.enterprise.sobject.SObject;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
@@ -125,6 +126,12 @@ public class MergeAndUploadPDF {
                         for (int i = 0; i < saveResults.length; i++) {
                             if (saveResults[i].isSuccess()) {
                                 LOGGER.info(i + ". Successfully created record - Id: " + saveResults[i].getId());
+                                Mail_Item__c[] mailItemRecords = new Mail_Item__c[1];
+                                Mail_Item__c mailItem = new Mail_Item__c();
+                                mailItem.Id = parentId;
+                                mailItem.File__c = instanceURL + "/" + saveResults[i].getId();
+                                mailItemRecords[0] = mailItem;
+                                SaveResult[] saveResults = connection.update(mailItemRecords);
                             } else {
                                 Error[] errors = saveResults[i].getErrors();
                                 for (int j = 0; j < errors.length; j++) {
